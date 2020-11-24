@@ -1,0 +1,77 @@
+@startuml
+
+skinparam defaultTextAlignment center
+!define ICONURL https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v2.2.0
+
+!include <C4/C4_Context.puml>
+!include <office/Users/user.puml>
+!include <awslib/AWSCommon>
+!include <awslib/AWSSimplified.puml>
+!include <awslib/ManagementAndGovernance/all.puml>
+!include <awslib/NetworkingAndContentDelivery/all.puml>
+!include <awslib/general/all.puml>
+!include <awslib/MigrationAndTransfer/all.puml>
+
+Boundary(phase1,                                            "Phase 1"){
+  User(user,                                                "\nUser", " ")
+  GlobalAccelerator(internet,                               "\nInternet", " ")
+  System(dns,                                               "\nDNS Entry For GW Website")
+  file pic as                                               "<img:https://i.ibb.co/yYLh4dv/glasswall.png>"
+}
+
+Boundary(phase2,                                            "Phase 2"){
+  User(user2,                                               "\nUser", " ")
+  GlobalAccelerator(internet2,                              "\nInternet", " ")
+  System(dns2,                                              "\nDNS Entry For GW Website")
+  file pic2 as                                              "<img:https://i.ibb.co/yYLh4dv/glasswall.png>"
+  ELBApplicationLoadBalancer(load_balancer2,                "\nLoad Balancer", " ")
+}
+
+Boundary(phase3,                                            "Phase 3"){
+  User(user3,                                               "\nUser", " ")
+  GlobalAccelerator(internet3,                              "\nInternet", " ")
+  System(dns3,                                              "\nDNS Entry For GW Website")
+  file pic3 as                                              "<img:https://i.ibb.co/yYLh4dv/glasswall.png>"
+  ELBApplicationLoadBalancer(load_balancer3,                "\nLoad Balancer", " ")
+  ServerMigrationService(proxy1,                            "\nProxy Server", " ")
+  ServerMigrationService(proxy2,                            "\nProxy Server", " ")
+  ServerMigrationService(proxy3,                            "\nProxy Server", " ")
+  ELBApplicationLoadBalancer(load_balancer4,                "\nLoad Balancer", " ")
+  CloudFormation(icap1,                                     "\nGW ICAP Server", " ")
+  CloudFormation(icap2,                                     "\nGW ICAP Server", " ")
+  CloudFormation(icap3,                                     "\nGW ICAP Server", " ")
+}
+
+
+phase1                        -[hidden]>                     phase2
+phase2                        -[hidden]>                     phase3
+
+dns                           -up->                          pic
+internet                      ->                             dns
+user                          -up->                          internet
+load_balancer2                -up->                          pic2
+dns2                          -up->                          load_balancer2
+internet2                     ->                             dns2
+user2                         -up->                          internet2
+
+load_balancer3                --up->                         pic3
+dns3                          -up->                          load_balancer3
+internet3                     -up->                          dns3
+user3                         ->                             internet3
+proxy1                        --[hidden]>                    proxy2
+'proxy2                        --[hidden]>                    proxy3
+load_balancer3                -up->                          proxy1
+load_balancer3                ->                             proxy2
+load_balancer3                -->                            proxy3
+proxy2                        ->                             load_balancer4
+proxy1                        -->                            load_balancer4
+proxy3                        -up->                          load_balancer4
+load_balancer4                -up->                          icap1
+load_balancer4                ->                             icap2
+load_balancer4                -->                            icap3
+
+proxy1                         -up->                         pic3
+proxy2                        -up->                          pic3
+proxy3                         -up->                         pic3
+
+@enduml
