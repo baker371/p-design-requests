@@ -6,5 +6,6 @@
 </br>
 
 
-![website_flow](https://user-images.githubusercontent.com/8102313/100161419-76681d80-2ec2-11eb-9578-96b82e679301.png)
+![website_flow](https://user-images.githubusercontent.com/8102313/100203669-f5397680-2f13-11eb-8ec1-6d05085d1a87.png)
+
 
