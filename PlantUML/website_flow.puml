@@ -26,8 +26,8 @@ System(backup,                                            "Backup connection in 
 user                            <-up->                    load_balancer
 load_balancer                   <->                       proxy2
 load_balancer                   <-left->                  proxy1
-load_balancer2                  -->                       proxy1
-load_balancer2                  -->                       proxy2
+load_balancer2                  <-->                      proxy1
+load_balancer2                  <-->                      proxy2
 load_balancer2                  <-left->                  icap1
 load_balancer2                  <->                       icap2
 pic                             --[hidden]>               load_balancer2
