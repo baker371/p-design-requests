@@ -1,0 +1,85 @@
+@startuml
+
+skinparam defaultTextAlignment center
+!define ICONURL https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v2.2.0
+
+!include <C4/C4_Context.puml>
+!include <office/Users/user.puml>
+!include <awslib/AWSCommon>
+!include <awslib/AWSSimplified.puml>
+
+!include <awslib/GroupIcons/all.puml>
+!include <awslib/MigrationAndTransfer/all.puml>
+!include <awslib/ApplicationIntegration/all.puml>
+!include <awslib/NetworkingAndContentDelivery/all.puml>
+!include <awslib/ManagementAndGovernance/all.puml>
+!include <awslib/Compute/all.puml>
+!include <awslib/Database/all.puml>
+
+title: <size:20>K8 IN VMWARE</size>
+
+Boundary(metal_server,                             "BARE METAL SERVER"){
+
+Boundary(vm,                                       "VM"){
+  Boundary(k8,                                     "K8"){
+    Boundary(K8_node,                              "K8 NODE"){
+    VirtualPrivateCloudVPC(mgt,                    "\nManagement VI", " ")
+    }
+  }
+}
+
+Boundary(vm2,                                     "VM"){
+  Boundary(k82,                                   "K8"){
+    Boundary(K8_node2,                            "K8 NODE"){
+    ServerMigrationService(nginx,                 "\nNGINX", " ")
+    SNSHTTPNotification(squid,                    "\nSQUID", " ")
+    }
+  }
+  ELBApplicationLoadBalancer(lb,                  "\nLoad Balancer", " ")
+ }
+}
+
+Boundary(metal_server2,                           "BARE METAL SERVER"){
+
+Boundary(k84,                                     "MEDIUM"){
+System(m_icap,                                    "ICAP SERVER")
+System(m_icap2,                                   "ICAP SERVER")
+System(i_cap1,                                    "ICAP")
+System(i_cap2,                                    "ICAP")
+System(i_cap3,                                    "ICAP")
+System(i_cap4,                                    "ICAP")
+    }
+
+  Boundary(icap_server,                           "ICAP SERVER"){
+  Boundary(k83,                                   "K8"){
+    Boundary(K8_node3,                            "K8 NODE"){
+    ManagedServices(adaptation_service,           "\nAdaptation Service", " ")
+    ECSService(add_note,                          "\nAdd Note", " ")
+    DatabaseMigrationService(data_store,          "\nData Store", " ")
+    ManagedServices(adaptation_service2,          "\nAdaptation Service", " ")
+    DatabaseMigrationService2(rebuilt_store,      "\nRebuilt Store", " ")
+    SQSQueue(queue,                               "\nMS Queue", " ")
+    VMwareCloudOnAWS(icap,                        "\nICAP Server", " ")
+  }
+}
+
+vm                       --[hidden]>              vm2
+nginx                    -[hidden]>               squid
+nginx                    --[hidden]>              lb
+metal_server             -[hidden]>               metal_server2
+adaptation_service       ->                       add_note
+data_store               -up->                    adaptation_service
+adaptation_service2      -up->                    adaptation_service
+add_note                 -->                      rebuilt_store
+add_note                 -->                      queue
+icap                     -up->                    data_store
+icap                     -up->                    adaptation_service2
+rebuilt_store            -->                      icap
+queue                    -->                      icap
+m_icap                   --[hidden]>              m_icap2
+m_icap2                  --[hidden]>              i_cap1
+i_cap1                   -[hidden]>               i_cap2
+i_cap1                   --[hidden]>              i_cap3
+i_cap2                   --[hidden]>              i_cap4
+
+@enduml
